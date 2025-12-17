@@ -14,18 +14,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 🔍 검증 단계 (배포용 아님)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build React
+      - name: Lint / Type Check (optional)
+        run: |
+          npm run lint --if-present
+          npm run typecheck --if-present
+
+      - name: Test Build (validation only)
         run: npm run build
 
+      # 📦 배포 단계
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -39,11 +46,12 @@ jobs:
             --username AWS \
             --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
 
-      - name: Build & Push React Image
+      - name: Build & Push Docker Image
         run: |
           IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/ktb-17/fe:latest
           docker build -t $IMAGE .
           docker push $IMAGE
+
 
   react-cd:
     needs: react-ci
@@ -57,7 +65,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2 via Docker Compose
+      - name: Deploy to EC2
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
