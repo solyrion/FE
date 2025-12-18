@@ -9,6 +9,8 @@ on:
 jobs:
   react-ci:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.new_version }}
 
     steps:
       - name: Checkout
