@@ -101,8 +101,8 @@ jobs:
           
             echo "📦 Pulling image: fe:$VERSION"
           
-            sudo docker compose pull
-            sudo docker compose up -d --remove-orphans
+            sudo -E docker compose pull
+            sudo -E docker compose up -d --remove-orphans
           
             echo "✅ Deployment completed: version $VERSION"
           EOF
