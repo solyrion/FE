@@ -87,7 +87,7 @@ jobs:
           VERSION: ${{ needs.react-ci.outputs.version }}
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
-          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
   
             aws ecr get-login-password --region ap-northeast-2 | \
               sudo docker login --username AWS --password-stdin \
