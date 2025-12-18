@@ -14,6 +14,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 🔢 버전 자동 생성
+      - name: Generate Version
+        id: version
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "✅ Generated version: $VERSION"
+
       # 🔍 검증 단계 (배포용 아님)
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -48,9 +56,18 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/ktb-17/fe:latest
-          docker build -t $IMAGE .
-          docker push $IMAGE
+          VERSION=${{ steps.version.outputs.new_version }}
+          REPO=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/ktb-17/fe
+          
+          echo "🐳 Building image: $REPO:$VERSION"
+          docker build -t $REPO:$VERSION .
+          docker push $REPO:$VERSION
+          
+          echo "✅ Successfully pushed: $REPO:$VERSION"
+
+#          IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/ktb-17/fe:latest
+#          docker build -t $IMAGE .
+#          docker push $IMAGE
 
 
   react-cd:
@@ -66,15 +83,27 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
+        env:
+          VERSION: ${{ needs.react-ci.outputs.version }}
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-
+  
             aws ecr get-login-password --region ap-northeast-2 | \
               sudo docker login --username AWS --password-stdin \
               ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
 
             cd /home/${{ secrets.SERVER_USER }}
+          
+            # 환경변수 설정
+            export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+            export FRONTEND_VERSION=${{ env.VERSION }}
+            export BACKEND_VERSION=latest
+          
+            echo "📦 Pulling image: fe:$FRONTEND_VERSION"
+          
             sudo docker compose pull
-            sudo docker compose up -d
+            sudo docker compose up -d --remove-orphans
+          
+            echo "✅ Deployment completed: version $FRONTEND_VERSION"
           EOF
