@@ -92,17 +92,15 @@ jobs:
           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
   
             aws ecr get-login-password --region ap-northeast-2 | \
-              docker login --username AWS --password-stdin \
+              sudo docker login --username AWS --password-stdin \
               ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
 
             cd /home/${{ secrets.SERVER_USER }}
-            
-            export FRONTEND_VERSION=$VERSION
-          
+                      
             echo "📦 Pulling image: fe:$VERSION"
           
-            docker compose pull
-            docker compose up -d --remove-orphans
+            sudo FRONTEND_VERSION=$VERSION docker compose pull
+            sudo FRONTEND_VERSION=$VERSION docker compose up -d --remove-orphans
           
             echo "✅ Deployment completed: version $VERSION"
           EOF
