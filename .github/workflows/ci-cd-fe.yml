@@ -84,7 +84,6 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          VERSION="${{ needs.react-ci.outputs.version }}"
           
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
@@ -97,7 +96,7 @@ jobs:
           
             # .env 파일 생성 (docker compose가 자동으로 읽음)
             echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" | sudo tee .env > /dev/null
-            echo "FRONTEND_VERSION=$VERSION" | sudo tee -a .env > /dev/null
+            echo "FRONTEND_VERSION=${{ needs.react-ci.outputs.version }}" | sudo tee -a .env > /dev/null
             
             echo "📦 Pulling image: fe:$FRONTEND_VERSION"
           
