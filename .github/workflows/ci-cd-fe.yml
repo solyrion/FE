@@ -86,6 +86,7 @@ jobs:
 
       - name: Deploy to EC2
         run: |
+          VERSION="${{ needs.react-ci.outputs.version }}"
           
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
@@ -95,15 +96,16 @@ jobs:
               ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
 
             cd /home/${{ secrets.SERVER_USER }}
-          
-            # .env 파일 생성 (docker compose가 자동으로 읽음)
-            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" | sudo tee .env > /dev/null
-            echo "FRONTEND_VERSION=${{ needs.react-ci.outputs.version }}" | sudo tee -a .env > /dev/null
             
-            echo "📦 Pulling image: fe:$FRONTEND_VERSION"
+            export FRONTEND_VERSION=$VERSION
+          
+            echo "📦 Pulling image: fe:$VERSION"
           
             sudo docker compose pull
             sudo docker compose up -d --remove-orphans
           
-            echo "✅ Deployment completed: version $FRONTEND_VERSION"
+            echo "✅ Deployment completed: version $VERSION"
           EOF
+#             .env 파일 생성 (docker compose가 자동으로 읽음)
+#            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" | sudo tee .env > /dev/null
+#            echo "FRONTEND_VERSION=${{ needs.react-ci.outputs.version }}" | sudo tee -a .env > /dev/null
