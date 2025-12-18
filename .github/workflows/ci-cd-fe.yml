@@ -83,9 +83,9 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
-        env:
-          VERSION: ${{ needs.react-ci.outputs.version }}
         run: |
+          VERSION="${{ needs.react-ci.outputs.version }}"
+          
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
   
