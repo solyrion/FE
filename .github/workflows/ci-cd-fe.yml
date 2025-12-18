@@ -67,7 +67,7 @@ jobs:
 
 #          IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/ktb-17/fe:latest
 #          docker build -t $IMAGE .
-#          docker push $IMAGE
+#          docker push $IMAGE,,
 
 
   react-cd:
