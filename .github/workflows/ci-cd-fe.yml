@@ -67,11 +67,6 @@ jobs:
           
           echo "✅ Successfully pushed: $REPO:$VERSION"
 
-#          IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/ktb-17/fe:latest
-#          docker build -t $IMAGE .
-#          docker push $IMAGE,,ss
-
-
   react-cd:
     needs: react-ci
     runs-on: ubuntu-latest
@@ -104,6 +99,3 @@ jobs:
           
             echo "✅ Deployment completed: version $VERSION"
           EOF
-#             .env 파일 생성 (docker compose가 자동으로 읽음)
-#            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" | sudo tee .env > /dev/null
-#            echo "FRONTEND_VERSION=${{ needs.react-ci.outputs.version }}" | sudo tee -a .env > /dev/null
