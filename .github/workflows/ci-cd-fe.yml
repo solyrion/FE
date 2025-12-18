@@ -95,11 +95,11 @@ jobs:
 
             cd /home/${{ secrets.SERVER_USER }}
           
-            # 환경변수 설정
-            export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
-            export FRONTEND_VERSION=${{ env.VERSION }}
-            export BACKEND_VERSION=latest
-          
+            # .env 파일 생성 (docker compose가 자동으로 읽음)
+            cat > .env << EOL
+            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+            FRONTEND_VERSION=$VERSION
+            
             echo "📦 Pulling image: fe:$FRONTEND_VERSION"
           
             sudo docker compose pull
