@@ -96,8 +96,8 @@ jobs:
             cd /home/${{ secrets.SERVER_USER }}
           
             # .env 파일 생성 (docker compose가 자동으로 읽음)
-            echo AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} > .env
-            echo FRONTEND_VERSION=$VERSION >> .env
+            echo AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} | sudo tee .env > /dev/null
+            echo FRONTEND_VERSION=$VERSION | sudo tee -a .env > /dev/null
             
             echo "📦 Pulling image: fe:$FRONTEND_VERSION"
           
